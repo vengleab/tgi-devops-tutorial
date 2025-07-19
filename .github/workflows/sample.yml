@@ -1,0 +1,19 @@
+name: CI/CD Pipeline
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message
+        run: |
+          echo "Hello, GitHub Actions!"
+          ls -la
+
+      - uses: actions/checkout@v3
+      - name: Print message
+        run: |
+          echo "Hello, GitHub Actions!"
+          ls -la
