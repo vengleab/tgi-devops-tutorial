@@ -22,10 +22,10 @@ jobs:
       - name: Copy frontend build to server via SCP
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ env.SSH_HOST }}
-          SSH_PORT: ${{ env.SSH_PORT }}
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_PORT: ${{ vars.SSH_PORT }}
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          FRONTEND_REMOTE_PATH: ${{ env.FRONTEND_REMOTE_PATH }}
+          FRONTEND_REMOTE_PATH: ${{ vars.FRONTEND_REMOTE_PATH }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
