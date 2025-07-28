@@ -7,13 +7,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Print message
+      - name: Show directory before checkout
         run: |
           echo "Hello, GitHub Actions!"
           ls -la
 
       - uses: actions/checkout@v3
-      - name: Print message
+      - name: Checkout repository and show directory
         run: |
           echo "Hello, GitHub Actions!"
           ls -la
+
+      - name: Copy frontend build to server via SCP
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ env.SSH_HOST }}
+          SSH_PORT: ${{ env.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          FRONTEND_REMOTE_PATH: ${{ env.FRONTEND_REMOTE_PATH }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          scp -r -P ${SSH_PORT:-22} -o StrictHostKeyChecking=no web-frontend/* ${SSH_USERNAME}@${SSH_HOST}:${FRONTEND_REMOTE_PATH}
