@@ -35,7 +35,7 @@ jobs:
           echo "SSH_USERNAME: $SSH_USERNAME"
           echo "FRONTEND_REMOTE_PATH: $FRONTEND_REMOTE_PATH"
           chmod 600 ~/.ssh/id_rsa
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "mkdir -p $FRONTEND_REMOTE_PATH && rm -rf $FRONTEND_REMOTE_PATH/*"
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "rm -rf $FRONTEND_REMOTE_PATH && mkdir -p $FRONTEND_REMOTE_PATH"
           scp -r -i ~/.ssh/id_rsa -P $SSH_PORT -o StrictHostKeyChecking=no web-frontend/* $SSH_USERNAME@$SSH_HOST:$FRONTEND_REMOTE_PATH
 
       - name: Copy backend build to server via SCP
@@ -53,7 +53,7 @@ jobs:
           echo "SSH_USERNAME: $SSH_USERNAME"
           echo "BACKEND_REMOTE_PATH: $BACKEND_REMOTE_PATH"
           chmod 600 ~/.ssh/id_rsa
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "mkdir -p $BACKEND_REMOTE_PATH && rm -rf $BACKEND_REMOTE_PATH/*"
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "rm -rf $BACKEND_REMOTE_PATH && mkdir -p $BACKEND_REMOTE_PATH"
           scp -r -i ~/.ssh/id_rsa -P $SSH_PORT -o StrictHostKeyChecking=no web-server/* $SSH_USERNAME@$SSH_HOST:$BACKEND_REMOTE_PATH
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "\
             cd $BACKEND_REMOTE_PATH && \
