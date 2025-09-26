@@ -64,26 +64,5 @@ jobs:
             echo 'PM2 version:' && pm2 --version && \
             npm install --production && \
             pm2 restart backend || pm2 start server.js --name backend"
-      
-      - name: Copy Nginx config to server via SCP
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ vars.SSH_HOST }}
-          SSH_PORT: ${{ vars.SSH_PORT }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          FRONTEND_REMOTE_PATH: ${{ vars.FRONTEND_REMOTE_PATH }}
-          BACKEND_REMOTE_PATH: ${{ vars.BACKEND_REMOTE_PATH }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-          echo "SSH_HOST: $SSH_HOST"
-          echo "SSH_PORT: $SSH_PORT"
-          echo "SSH_USERNAME: $SSH_USERNAME"
-          chmod 600 ~/.ssh/id_rsa
-          scp -i ~/.ssh/id_rsa -P $SSH_PORT -o StrictHostKeyChecking=no nginx-config/default.conf $SSH_USERNAME@$SSH_HOST:/tmp/nginx-default.conf
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "\
-            sudo cp /tmp/nginx-default.conf /etc/nginx/sites-enabled/default && \
-            sudo nginx -t && \
-            sudo nginx -s reload && \
-            echo 'Nginx configuration updated and reloaded successfully'"
+
       
