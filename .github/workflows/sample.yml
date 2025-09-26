@@ -14,6 +14,7 @@ jobs:
           ls -la
 
       - uses: actions/checkout@v3
+
       - name: Checkout repository and show directory
         run: |
           echo "Hello, GitHub Actions!"
@@ -28,7 +29,7 @@ jobs:
           FRONTEND_REMOTE_PATH: ${{ vars.FRONTEND_REMOTE_PATH }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
           echo "SSH_HOST: $SSH_HOST"
           echo "SSH_PORT: $SSH_PORT"
           echo "FRONTEND_REMOTE_PATH: $FRONTEND_REMOTE_PATH"
