@@ -1,0 +1,68 @@
+name: CI/CD Pipeline
+on:
+  push:
+    branches: [ test-workflow ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: develop
+    steps:
+      - name: Show directory before checkout
+        run: |
+          echo "Hello, GitHub Actions!"
+          ls -la
+
+      - uses: actions/checkout@v3
+
+      - name: Checkout repository and show directory
+        run: |
+          echo "Hello, GitHub Actions!"
+          ls -la
+
+      - name: Copy frontend build to server via SCP
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_PORT: ${{ vars.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          FRONTEND_REMOTE_PATH: ${{ vars.FRONTEND_REMOTE_PATH }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          echo "SSH_HOST: $SSH_HOST"
+          echo "SSH_PORT: $SSH_PORT"
+          echo "SSH_USERNAME: $SSH_USERNAME"
+          echo "FRONTEND_REMOTE_PATH: $FRONTEND_REMOTE_PATH"
+          chmod 600 ~/.ssh/id_rsa
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "rm -rf $FRONTEND_REMOTE_PATH && mkdir -p $FRONTEND_REMOTE_PATH"
+          scp -r -i ~/.ssh/id_rsa -P $SSH_PORT -o StrictHostKeyChecking=no web-frontend/* $SSH_USERNAME@$SSH_HOST:$FRONTEND_REMOTE_PATH
+
+      - name: Copy backend build to server via SCP
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_PORT: ${{ vars.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          BACKEND_REMOTE_PATH: ${{ vars.BACKEND_REMOTE_PATH }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          echo "SSH_HOST: $SSH_HOST"
+          echo "SSH_PORT: $SSH_PORT"
+          echo "SSH_USERNAME: $SSH_USERNAME"
+          echo "BACKEND_REMOTE_PATH: $BACKEND_REMOTE_PATH"
+          chmod 600 ~/.ssh/id_rsa
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "rm -rf $BACKEND_REMOTE_PATH && mkdir -p $BACKEND_REMOTE_PATH"
+          scp -r -i ~/.ssh/id_rsa -P $SSH_PORT -o StrictHostKeyChecking=no web-server/* $SSH_USERNAME@$SSH_HOST:$BACKEND_REMOTE_PATH
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "\
+            cd $BACKEND_REMOTE_PATH && \
+            export PATH=/home/ubuntu/.nvm/versions/node/v22.18.0/bin:\$PATH && \
+            echo 'Updated PATH:' && echo \$PATH && \
+            echo 'Node.js version:' && node --version && \
+            echo 'NPM version:' && npm --version && \
+            echo 'PM2 version:' && pm2 --version && \
+            npm install --production && \
+            pm2 restart backend || pm2 start server.js --name backend"
+
+      
